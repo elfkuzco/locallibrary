@@ -66,17 +66,17 @@ def upgrade() -> None:
     op.create_table(
         "book_category",
         sa.Column("book_isbn", postgresql.CITEXT(), nullable=False),
-        sa.Column("categroy_name", postgresql.CITEXT(), nullable=False),
+        sa.Column("category_name", postgresql.CITEXT(), nullable=False),
         sa.ForeignKeyConstraint(
             ["book_isbn"], ["book.isbn"], name=op.f("fk_book_category_book_isbn_book")
         ),
         sa.ForeignKeyConstraint(
-            ["categroy_name"],
+            ["category_name"],
             ["category.name"],
-            name=op.f("fk_book_category_categroy_name_category"),
+            name=op.f("fk_book_category_category_name_category"),
         ),
         sa.PrimaryKeyConstraint(
-            "book_isbn", "categroy_name", name=op.f("pk_book_category")
+            "book_isbn", "category_name", name=op.f("pk_book_category")
         ),
     )
     op.create_table(
@@ -87,7 +87,7 @@ def upgrade() -> None:
             server_default=sa.text("uuid_generate_v4()"),
             nullable=False,
         ),
-        sa.Column("due_date", sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("due_date", sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column("is_available", sa.Boolean(), nullable=False),
         sa.Column("book_isbn", postgresql.CITEXT(), nullable=False),
         sa.Column("borrower_id", postgresql.CITEXT(), nullable=True),

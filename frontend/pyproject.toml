@@ -141,6 +141,7 @@ pythonpath = [".", "src"]
 addopts = "--strict-markers"
 markers = [
     "num_users(num=10): create num (default: 10) users in the database.",
+    "num_books(num=10): create num (default: 10) books in the database.",
 ]
 
 [tool.pyright]

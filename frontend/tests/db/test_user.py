@@ -1,18 +1,19 @@
 import pytest
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as OrmSession
 
+from locallibrary_frontend.db.exceptions import RecordDoesNotExistError
 from locallibrary_frontend.db.models import User
-from locallibrary_frontend.db.user import create_user, get_user_or_one
+from locallibrary_frontend.db.user import create_user, get_user
 
 
 def test_user_does_not_exist(dbsession: OrmSession):
     """Check that no user exists on the database."""
-    user = get_user_or_one(dbsession, "xyz@abc.com")
-    assert user is None
+    with pytest.raises(RecordDoesNotExistError):
+        get_user(dbsession, "xyz@abc.com")
 
 
 def test_create_user(dbsession: OrmSession):
+    """Check that we create a user."""
     email = "xyz@abc.com"
     first_name = "xyz"
     last_name = "abc"
@@ -25,12 +26,10 @@ def test_create_user(dbsession: OrmSession):
 
 
 @pytest.mark.num_users(1)
-def test_create_user_duplicate_email(dbsession: OrmSession, users: list[User]):
+def test_get_user(dbsession: OrmSession, users: list[User]):
+    """Check that we can get a user."""
     existing_user = users[0]
-    with pytest.raises(IntegrityError):
-        create_user(
-            dbsession,
-            email=existing_user.email,
-            last_name=existing_user.last_name,
-            first_name=existing_user.first_name,
-        )
+    db_user = get_user(dbsession, existing_user.email)
+    assert db_user.email == existing_user.email
+    assert db_user.last_name == existing_user.last_name
+    assert db_user.first_name == existing_user.first_name

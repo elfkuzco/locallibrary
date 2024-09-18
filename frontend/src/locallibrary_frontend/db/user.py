@@ -15,7 +15,7 @@ def get_user(session: OrmSession, email: str) -> User:
     user = get_user_or_one(session, email)
     if user is None:
         raise RecordDoesNotExistError(
-            f"User with provided email {email!r} does not exist."
+            f"User with email address {email!r} does not exist."
         )
     return user
 

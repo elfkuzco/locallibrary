@@ -78,7 +78,7 @@ class BookCategory(Base):
 
     __tablename__ = "book_category"
     book_isbn: Mapped[str] = mapped_column(ForeignKey("book.isbn"), primary_key=True)
-    categroy_name: Mapped[str] = mapped_column(
+    category_name: Mapped[str] = mapped_column(
         ForeignKey("category.name"), primary_key=True
     )
 
@@ -135,7 +135,11 @@ class Book(Base):
         back_populates="books", init=False, repr=False
     )
     instances: Mapped[list[BookInstance]] = relationship(
-        back_populates="book", cascade="all, delete", passive_deletes=True
+        back_populates="book",
+        cascade="all, delete",
+        passive_deletes=True,
+        init=False,
+        repr=False,
     )
 
 
@@ -147,7 +151,7 @@ class BookInstance(Base):
     id: Mapped[UUID] = mapped_column(
         init=False, primary_key=True, server_default=text("uuid_generate_v4()")
     )
-    due_date: Mapped[datetime.datetime]
+    due_date: Mapped[datetime.datetime | None] = mapped_column(default=None)
     is_available: Mapped[bool] = mapped_column(default=True)
     book_isbn: Mapped[str] = mapped_column(
         ForeignKey("book.isbn", ondelete="CASCADE"), init=False
