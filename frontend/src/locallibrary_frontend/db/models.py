@@ -68,6 +68,8 @@ class User(Base):
             "BookInstance.is_available=='f')"
         ),
         back_populates="borrower",
+        init=False,
+        repr=False,
     )
 
 
