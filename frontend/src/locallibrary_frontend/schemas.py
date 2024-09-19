@@ -2,7 +2,7 @@ import datetime
 import math
 
 import pydantic
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 
 
 class BaseModel(pydantic.BaseModel):
@@ -34,13 +34,25 @@ class BookInstance(BaseModel):
     due_date: datetime.datetime | None = None
 
 
-class Book(BaseModel):
+class BookBase(BaseModel):
     isbn: str
     title: str
     summary: str | None = None
     created_at: datetime.datetime
     categories: list[str]
+
+
+class Book(BookBase):
     copies: list[BookInstance]
+
+
+class BorrowBookRequest(BaseModel):
+    email: str
+    duration: int = Field(ge=30, le=1)
+
+
+class BorrowedBook(BookBase, BookInstance):
+    pass
 
 
 class BookList(BaseModel):

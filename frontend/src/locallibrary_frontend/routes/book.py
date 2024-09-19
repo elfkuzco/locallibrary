@@ -1,11 +1,15 @@
+import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 from fastapi import status as status_codes
 
+from locallibrary_frontend.db.books import borrow_book as db_borrow_book
+from locallibrary_frontend.db.books import get_available_book_instances
 from locallibrary_frontend.db.books import get_book as db_get_book
 from locallibrary_frontend.db.books import list_books as db_list_books
 from locallibrary_frontend.db.exceptions import RecordDoesNotExistError
+from locallibrary_frontend.db.user import get_user
 from locallibrary_frontend.enums import (
     BookSortColumnEnum,
     SortDirectionEnum,
@@ -15,9 +19,11 @@ from locallibrary_frontend.routes.http_errors import NotFoundError
 from locallibrary_frontend.schemas import (
     Book,
     BookList,
+    BorrowBookRequest,
+    BorrowedBook,
     calculate_pagination_metadata,
 )
-from locallibrary_frontend.serializers import serialize_book
+from locallibrary_frontend.serializers import serialize_book, serialize_borrowed_book
 from locallibrary_frontend.settings import Settings
 
 router = APIRouter(prefix="/books", tags=["books"])
@@ -73,3 +79,31 @@ def get_book(isbn: Annotated[str, Path()], session: DbSession) -> Book:
     except RecordDoesNotExistError as exc:
         raise NotFoundError(str(exc)) from exc
     return serialize_book(book)
+
+
+@router.post(
+    "/borrow/{isbn}",
+    status_code=status_codes.HTTP_200_OK,
+    responses={
+        status_codes.HTTP_200_OK: {"description": "Borrowed book successfully"},
+    },
+)
+def borrow_book(
+    isbn: Annotated[str, Path()], request: BorrowBookRequest, session: DbSession
+) -> BorrowedBook:
+    try:
+        user = get_user(session, request.email)
+    except RecordDoesNotExistError as exc:
+        raise NotFoundError(str(exc)) from exc
+
+    available_copies = get_available_book_instances(session, isbn)
+    if not available_copies:
+        raise NotFoundError("The book is not available at the moment.")
+
+    borrowed_book = db_borrow_book(
+        session,
+        user,
+        available_copies[0],
+        datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=request.duration),
+    )
+    return serialize_borrowed_book(borrowed_book)

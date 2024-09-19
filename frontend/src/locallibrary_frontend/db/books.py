@@ -1,11 +1,12 @@
+import datetime
 from dataclasses import dataclass
 
-from sqlalchemy import UnaryExpression, asc, desc, func, select
+from sqlalchemy import UnaryExpression, asc, desc, func, select, true
 from sqlalchemy.orm import Session as OrmSession
 
 from locallibrary_frontend.db.categories import get_or_create_category
 from locallibrary_frontend.db.exceptions import RecordDoesNotExistError
-from locallibrary_frontend.db.models import Book, BookInstance, Category
+from locallibrary_frontend.db.models import Book, BookInstance, Category, User
 from locallibrary_frontend.db.publisher import get_or_create_publisher
 from locallibrary_frontend.enums import BookSortColumnEnum, SortDirectionEnum
 from locallibrary_frontend.settings import Settings
@@ -153,3 +154,32 @@ def create_book(
 
     session.add(book)
     return book
+
+
+def get_available_book_instances(session: OrmSession, isbn: str) -> list[BookInstance]:
+    """Get available copies of the book."""
+    return list(
+        session.scalars(
+            select(BookInstance).where(
+                BookInstance.is_available == true(), BookInstance.book_isbn == isbn
+            )
+        ).all()
+    )
+
+
+def borrow_book(
+    session: OrmSession,
+    borrower: User,
+    book_instance: BookInstance,
+    due_date: datetime.datetime,
+) -> BookInstance:
+    """Mark a copy of a book as borrowed by user."""
+
+    book_instance.is_available = False
+    book_instance.due_date = due_date
+    book_instance.borrower = borrower
+
+    session.add(book_instance)
+    session.flush()
+
+    return book_instance
