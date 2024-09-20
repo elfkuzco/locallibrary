@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// AddBookRequest represents a request to add a book to the library.
+message AddBookRequest {
+  string isbn = 1;
+  string title = 2;
+  string publisher_name = 3;
+  repeated string categories = 4;
+  optional string summary = 5;
+}
+
+
+// RemoveBookRequest represents a request to remove a book from the library
+message RemoveBookRequest {
+  string isbn = 1;
+}
+
+message BookInstance {
+  string id = 1;
+  optional string borrower_id = 2;
+  optional google.protobuf.Timestamp due_date = 3;
+  bool is_available = 4;
+}
+
+
+message BookDetail {
+  string isbn = 1;
+  string title = 2;
+  string publisher_name = 3;
+  google.protobuf.Timestamp created_at = 4;
+  optional string summary = 5;
+  repeated string categories = 6;
+  repeated BookInstance copies = 7;
+}
+
+// GetUserRequest  represents as request to fetch a user of the library
+message GetUserRequest {
+  string email = 1;;
+}
+
+message BorrowedBook {
+  string isbn = 1;
+  string title = 2;
+  string publisher_name = 3;
+  google.protobuf.Timestamp created_at = 4;
+  optional string summary = 5;
+  repeated string categories = 6;
+  optional string borrower_id = 7;
+  optional google.protobuf.Timestamp due_date = 8;
+  bool is_available = 9;
+}
+
+message User {
+  string email = 1;
+  string last_name = 2;
+  string first_name = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message UserDetail {
+  string email = 1;
+  string last_name = 2;
+  string first_name = 3;
+  google.protobuf.Timestamp created_at = 4;
+  repeated BorrowedBook borrowed_books = 5;
+}
+
+message ListGenericResourceRequest {
+  int32 page_size = 1;
+  int32 page_num = 2;
+}
+
+message Paginator {
+    int32 total_records = 1;
+    int32 page_size = 2;
+    optional int32 current_page = 3;
+    optional int32 first_page = 4;
+    optional int32 last_page = 5;
+}
+
+message BookList {
+  repeated BookDetail books = 1;
+  Paginator metadata = 2;
+}
+
+message UserList {
+  repeated User users = 1;
+  Paginator metadata = 2;
+}
+
+service LocalLibraryFrontend {
+  // Add a book to the library
+  rpc AddBook (AddBookRequest) returns (BookDetail) {}
+  // Remove a book from the library
+  rpc RemoveBook (RemoveBookRequest) returns (google.protobuf.Empty) {}
+  // Get a user and the books that they have borrowed
+  rpc GetUser (GetUserRequest) returns (UserDetail) {}
+  // List borrowed books
+  rpc ListBorrowedBooks (ListGenericResourceRequest) returns (BookList) {}
+  // List users enrolled in the library.
+  rpc ListUsers (ListGenericResourceRequest) returns (UserList) {}
+}
