@@ -1,8 +1,11 @@
-from sqlalchemy import select
+from dataclasses import dataclass
+
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session as OrmSession
 
 from locallibrary_frontend.db.exceptions import RecordDoesNotExistError
 from locallibrary_frontend.db.models import User
+from locallibrary_frontend.settings import Settings
 
 
 def get_user_or_one(session: OrmSession, email: str) -> User | None:
@@ -28,3 +31,36 @@ def create_user(
     session.add(user)
     session.flush()
     return user
+
+
+@dataclass
+class UserListResult:
+    """Result of query to list books from the database."""
+
+    nb_users: int
+    users: list[User]
+
+
+def list_users(
+    session: OrmSession,
+    *,
+    page_num: int = 1,
+    page_size: int = Settings.MAX_PAGE_SIZE,
+) -> UserListResult:
+    """List users in the database."""
+
+    query = (
+        select(func.count().over().label("total_records"), User)
+        .order_by(User.created_at.desc())
+        .offset((page_num - 1) * page_size)
+        .limit(page_size)
+    )
+    result = UserListResult(nb_users=0, users=[])
+
+    for total_records, user in session.execute(query).all():
+        # Because the SQL window function returns the total_records
+        # for every row, assign that value to the nb_users
+        result.nb_users = total_records
+        result.users.append(user)
+
+    return result

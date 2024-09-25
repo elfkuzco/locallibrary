@@ -153,6 +153,7 @@ def create_book(
     book.categories = book_categories
 
     session.add(book)
+    session.flush()
     return book
 
 
@@ -183,3 +184,10 @@ def borrow_book(
     session.flush()
 
     return book_instance
+
+
+def remove_book(session: OrmSession, isbn: str) -> None:
+    """Remove a book from the database."""
+    book = get_book(session, isbn)
+    session.delete(book)
+    session.flush()

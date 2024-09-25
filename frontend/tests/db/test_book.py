@@ -7,6 +7,7 @@ from locallibrary_frontend.db.books import (
     filter_book,
     get_book,
     list_books,
+    remove_book,
 )
 from locallibrary_frontend.db.exceptions import RecordDoesNotExistError
 from locallibrary_frontend.db.models import Book
@@ -125,3 +126,14 @@ def test_list_books(
         is_available=is_available,
     )
     assert len(filtered_books) == result.nb_books
+
+
+def test_remove_non_existing_book(dbsession: OrmSession):
+    with pytest.raises(RecordDoesNotExistError):
+        remove_book(dbsession, "doesnotexist")
+
+
+@pytest.mark.num_books(1)
+def test_remove_existing_book(dbsession: OrmSession, books: list[Book]):
+    book = books[0]
+    assert remove_book(dbsession, book.isbn) is None

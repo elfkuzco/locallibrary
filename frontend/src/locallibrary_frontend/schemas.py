@@ -39,6 +39,7 @@ class BookBase(BaseModel):
     title: str
     summary: str | None = None
     created_at: datetime.datetime
+    publisher_name: str
     categories: list[str]
 
 

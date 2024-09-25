@@ -61,11 +61,11 @@ class User(Base):
         server_default=func.now(),
         init=False,
     )
-    borrowed_books: Mapped[BookInstance] = relationship(
+    borrowed_books: Mapped[list[BookInstance]] = relationship(
         primaryjoin=(
             "and_"
             "(User.email==BookInstance.borrower_id, "
-            "BookInstance.is_available=='f')"
+            "BookInstance.is_available==False)"
         ),
         back_populates="borrower",
         init=False,
@@ -140,6 +140,16 @@ class Book(Base):
         passive_deletes=True,
         init=False,
         repr=False,
+    )
+    borrowed_instances: Mapped[list[BookInstance]] = relationship(
+        primaryjoin=(
+            "and_"
+            "(Book.isbn==BookInstance.book_isbn, "
+            "BookInstance.is_available==False)"
+        ),
+        init=False,
+        repr=False,
+        viewonly=True,
     )
 
 

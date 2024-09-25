@@ -15,6 +15,7 @@ def serialize_book(book: models.Book) -> schemas.Book:
         title=book.title,
         summary=book.summary,
         created_at=book.created_at,
+        publisher_name=book.publisher_name,
         categories=[category.name for category in book.categories],
         copies=[
             schemas.BookInstance(
@@ -34,6 +35,7 @@ def serialize_borrowed_book(book_instance: models.BookInstance) -> schemas.Borro
         due_date=book_instance.due_date,
         isbn=book_instance.book.isbn,
         title=book_instance.book.title,
+        publisher_name=book_instance.book.publisher_name,
         summary=book_instance.book.summary,
         created_at=book_instance.book.created_at,
         categories=[category.name for category in book_instance.book.categories],
