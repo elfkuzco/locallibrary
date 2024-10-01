@@ -58,11 +58,11 @@ delete_non_generated_files () {
 
 gen_golang_package() {
     # Install the gRPC tools
-     #sudo apt-get install -y protobuf-compiler
-     #go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-     #go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+    sudo apt-get install -y protobuf-compiler
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
     # shellcheck disable=SC2155
-    #export PATH="$PATH:$(go env GOPATH)/bin"
+    export PATH="$PATH:$(go env GOPATH)/bin"
 
     module_root="github.com/elfkuzco/locallibrary"
     dest="grpc/golang/${service_name}"
@@ -70,13 +70,13 @@ gen_golang_package() {
 
     protoc --go_out=. --go_opt=module="$module_root" \
 	--go-grpc_out=. --go-grpc_opt=module="$module_root" \
-	./proto/"${service_name}"/*.proto
+	./proto/"${service_name}"/*.proto || exit 1
 
     pushd .
-    cd "$dest" || { echo "error switching to $dest directory."; exit 1; }
+    cd "$dest" || exit 1
     go mod init "$module_name"
     go mod tidy
-    popd || { echo "error switching to project root."; exit 1; }
+    popd || exit 1
 
     delete_non_generated_files "grpc"
 
