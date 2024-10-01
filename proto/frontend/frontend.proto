@@ -3,6 +3,8 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "github.com/elfkuzco/locallibrary/grpc/golang/frontend";
+
 // AddBookRequest represents a request to add a book to the library.
 message AddBookRequest {
   string isbn = 1;
