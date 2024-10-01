@@ -16,7 +16,7 @@ pydantic = "^2.9.2"
 grpcio = "^1.66.1"
 protobuf = "^5.28.2"
 grpc-interceptor = "^0.15.4"
-locallibrary-frontend-grpc = {git = "https://github.com/elfkuzco/locallibrary.git", rev = "python/frontend/v0.0.1"}
+locallibrary-frontend-grpc = {git = "https://github.com/elfkuzco/locallibrary.git", rev = "grpc/python/frontend/v1.0.0"}
 
 
 [tool.poetry.group.dev.dependencies]
