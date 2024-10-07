@@ -17,7 +17,9 @@ COPY src /app/src
 
 RUN poetry install --only main
 
+# web server port
 EXPOSE 80
+# gRPC server port
 EXPOSE 50051
 
 CMD ["uvicorn", "locallibrary_frontend.web:app", "--host", "0.0.0.0", "--port", "80"]

@@ -40,7 +40,7 @@ message BookDetail {
 
 // GetUserRequest  represents as request to fetch a user of the library
 message GetUserRequest {
-  string email = 1;;
+  string email = 1;
 }
 
 message BorrowedBook {

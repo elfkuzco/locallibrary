@@ -18,3 +18,4 @@ class Settings:
     DEBUG = bool(getenv("DEBUG", default=False))
     # maximum number of items to return from a request/query
     MAX_PAGE_SIZE = int(getenv("PAGE_SIZE", default=20))
+    GRPC_SERVER_PORT = int(getenv("GRPC_SERVER_PORT", default=50051))

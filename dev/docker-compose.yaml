@@ -41,6 +41,15 @@ services:
     ports:
       - 50051
     command: locallibrary-frontend-grpc-server
+  locallibrary-admin-http-server:
+    build:
+      context: ../admin
+    container_name: locallibrary-admin-http-server
+    ports:
+      - 8001:80
+    command: >-
+      /bin/server -environment=development
+      -frontend-grpc-server-address=locallibrary-frontend-grpc-server:50051
 
 volumes:
   pg-data-locallibrary-frontend:
