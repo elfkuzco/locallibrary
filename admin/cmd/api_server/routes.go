@@ -16,6 +16,7 @@ func (app *application) routes() http.Handler {
 
 	r.Route("/book", func(r chi.Router) {
 		r.Post("/", app.AddBook)
+		r.Delete("/{isbn}", app.RemoveBook)
 	})
 
 	return r

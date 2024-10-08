@@ -41,3 +41,11 @@ func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 	}
 	app.errorResponse(w, r, err)
 }
+
+func (app *application) statusConflictResponse(w http.ResponseWriter, r *http.Request, e error) {
+	err := Error{
+		Code:    http.StatusConflict,
+		Message: e.Error(),
+	}
+	app.errorResponse(w, r, err)
+}
