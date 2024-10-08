@@ -3,7 +3,7 @@ name: Publish admin Docker image
 on:
   push:
     branches:
-      - main
+      - release
     paths:
       - 'admin/**'
   workflow_dispatch:
