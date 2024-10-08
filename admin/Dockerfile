@@ -1,4 +1,8 @@
 # syntax=docker/dockerfile:1
+LABEL org.opencontainers.image.source=https://github.com/elfkuzco/locallibrary
+LABEL org.opencontainers.image.description="Locallibrary Admin Service"
+LABEL org.opencontainers.image.licenses=MIT
+
 ARG GO_VERSION=1.21
 ARG APP_VERSION="v0.0.0+unknown"
 ARG BUILDTIME="1970-01-01T01:00:00+01:00"
