@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "locallibrary-frontend"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Uchechukwu Orji <orjiuchechukwu52@yahoo.com>"]
 readme = "README.md"
