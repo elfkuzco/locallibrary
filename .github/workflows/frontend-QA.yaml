@@ -8,6 +8,13 @@ on:
     branches:
       - main
 
+env:
+  JWT_ECDSA_PUBLIC_KEY: ${{ secrets.JWT_ECDSA_PUBLIC_KEY }}
+  JWT_ECDSA_PRIVATE_KEY: ${{ secrets.JWT_ECDSA_PRIVATE_KEY }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+
 jobs:
 
   check-qa:
