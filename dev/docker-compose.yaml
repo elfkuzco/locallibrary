@@ -26,6 +26,10 @@ services:
     environment:
       POSTGRES_URI: postgresql+psycopg://locallibrary_frontend:locallibrary_frontend@locallibrary-frontend-postgresdb:5432/locallibrary_frontend
       DEBUG: true
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID not set}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET not set}
+      JWT_ECDSA_PRIVATE_KEY: ${JWT_ECDSA_PRIVATE_KEY:?JWT_ECDSA_PRIVATE_KEY not set}
+      JWT_ECDSA_PUBLIC_KEY: ${JWT_ECDSA_PUBLIC_KEY:?JWT_ECDSA_PUBLIC_KEY not set}
     ports:
       - 8000:80
   locallibrary-frontend-grpc-server:
@@ -38,6 +42,10 @@ services:
     environment:
       POSTGRES_URI: postgresql+psycopg://locallibrary_frontend:locallibrary_frontend@locallibrary-frontend-postgresdb:5432/locallibrary_frontend
       DEBUG: true
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?GOOGLE_CLIENT_ID not set}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?GOOGLE_CLIENT_SECRET not set}
+      JWT_ECDSA_PRIVATE_KEY: ${JWT_ECDSA_PRIVATE_KEY:?JWT_ECDSA_PRIVATE_KEY not set}
+      JWT_ECDSA_PUBLIC_KEY: ${JWT_ECDSA_PUBLIC_KEY:?JWT_ECDSA_PUBLIC_KEY not set}
     ports:
       - 50051
     command: locallibrary-frontend-grpc-server

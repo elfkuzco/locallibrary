@@ -63,6 +63,7 @@ def users(
             first_name=data_gen.first_name(),
             last_name=data_gen.last_name(),
             email=data_gen.ascii_email(),
+            id=data_gen.dga(),
         )
         for _ in range(num_users)
     ]

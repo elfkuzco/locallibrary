@@ -11,8 +11,9 @@ class BaseModel(pydantic.BaseModel):
 
 class User(BaseModel):
     email: str
-    first_name: str
-    last_name: str
+    id: str | None
+    first_name: str | None
+    last_name: str | None
 
 
 class Paginator(BaseModel):
@@ -59,6 +60,16 @@ class BorrowedBook(BookBase, BookInstance):
 class BookList(BaseModel):
     books: list[Book]
     metadata: Paginator
+
+
+class RefreshToken(BaseModel):
+    token: str
+    provider: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
 def calculate_pagination_metadata(

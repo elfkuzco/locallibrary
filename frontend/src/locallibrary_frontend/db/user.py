@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from sqlalchemy import func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session as OrmSession
 
 from locallibrary_frontend.db.exceptions import RecordDoesNotExistError
@@ -24,13 +25,23 @@ def get_user(session: OrmSession, email: str) -> User:
 
 
 def create_user(
-    session: OrmSession, *, email: str, first_name: str, last_name: str
+    session: OrmSession,
+    *,
+    email: str,
+    user_id: str,
+    first_name: str | None,
+    last_name: str | None,
 ) -> User:
     """Add a user to the database."""
-    user = User(email=email, first_name=first_name, last_name=last_name)
-    session.add(user)
-    session.flush()
-    return user
+    session.execute(
+        insert(User)
+        .values(email=email, first_name=first_name, last_name=last_name, id=user_id)
+        .on_conflict_do_update(
+            index_elements=["id"],
+            set_={"first_name": first_name, "last_name": last_name},
+        )
+    )
+    return get_user(session, email)
 
 
 @dataclass

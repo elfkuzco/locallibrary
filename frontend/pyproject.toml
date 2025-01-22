@@ -17,6 +17,9 @@ grpcio = "^1.66.1"
 protobuf = "^5.28.2"
 grpc-interceptor = "^0.15.4"
 locallibrary-frontend-grpc = {git = "https://github.com/elfkuzco/locallibrary.git", rev = "grpc/python/frontend/v1.0.0"}
+aiohttp = "^3.11.11"
+pyjwt = {extras = ["crypto"], version = "^2.10.1"}
+humanfriendly = "^10.0"
 
 
 [tool.poetry.group.dev.dependencies]

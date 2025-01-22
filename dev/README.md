@@ -2,6 +2,36 @@ This docker-compose configuration to be used **only** for development purpose.
 
 **NOTE:** Unless otherwise stated, all files and commands are with respective to the `dev` directory.
 
+## Generating the Private and Public Key
+
+**NOTE:** The names `<private_key_filename>` and `<public_key_filename>` are templates for whatever names you choose.
+
+- Generate the private key and save it in `<private_key_filename>`:
+
+  ```sh
+  openssl ecparam -name prime256v1 -genkey -noout -out <private_key_filename>
+  ```
+
+- Encode the private key as a base64 string:
+  ```sh
+  base64 -w 0 <private_key_filename>
+  ```
+- Copy this value and save it as the `JWT_ECDSA_PRIVATE_KEY` variable.
+
+- Generate the public key and save it in `<public_key_filename>`:
+
+  ```sh
+  openssl ec -in <private_key_filename> -pubout > <public_key_filename>
+  ```
+
+- Encode the public key as a base64 string
+
+  ```sh
+  base64 -w 0 <public_key_filename>
+  ```
+
+- This value will be used as the `JWT_ECDSA_PUBLIC_KEY` variable in the services that will verify the JWT.
+
 ## List of services
 
 ### frontend-http-server
@@ -36,6 +66,11 @@ docker compose up --build
 - `DEBUG`: Whether to be verbose in log output.
 - `MAX_PAGE_SIZE`: Maximum number of items to return from a request/query (default: 20)
 - `GRPC_SERVER_PORT`: Port to run the gRPC server.
+- `GOOGLE_CLIENT_ID`: Google client ID for OAuth2 integration
+- `GOOGLE_CLIENT_SECRET`: Google client secret for OAuth2 integration
+- `JWT_ECDSA_PRIVATE_KEY`: Private key for generating JWT.
+- `JWT_ECDSA_PUBLIC_KEY`: Public key for verifying JWT.
+- `JWT_EXPIRY_DURATION `: How long JWT should last (default: 3h)
 
 ### admin-http-server
 - `DEBUG`: Whether to be verbose in log output.

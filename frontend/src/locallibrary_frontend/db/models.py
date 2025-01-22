@@ -6,6 +6,7 @@ from uuid import UUID
 from sqlalchemy import (
     BIGINT,
     ForeignKey,
+    UniqueConstraint,
     func,
     text,
 )
@@ -55,8 +56,9 @@ class User(Base):
     __tablename__ = "user"
 
     email: Mapped[str] = mapped_column(primary_key=True)
-    first_name: Mapped[str]
-    last_name: Mapped[str]
+    id: Mapped[str | None]
+    first_name: Mapped[str | None]
+    last_name: Mapped[str | None]
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now(),
         init=False,
@@ -70,6 +72,31 @@ class User(Base):
         back_populates="borrower",
         init=False,
         repr=False,
+    )
+    refresh_tokens: Mapped[list[RefreshToken]] = relationship(
+        back_populates="user",
+        cascade="all, delete",
+        passive_deletes=True,
+        init=False,
+        repr=False,
+    )
+
+    __table_args__ = (UniqueConstraint("id"),)
+
+
+class RefreshToken(Base):
+    """Model representing refresh tokens from various providers."""
+
+    __tablename__ = "refresh_token"
+
+    id: Mapped[int] = mapped_column(
+        autoincrement=True, primary_key=True, init=False, repr=False
+    )
+    refresh_token: Mapped[str]
+    provider: Mapped[str]
+    user_id: Mapped[str] = mapped_column(ForeignKey("user.id"), init=False)
+    user: Mapped[User] = relationship(
+        back_populates="refresh_tokens", init=False, repr=False
     )
 
 

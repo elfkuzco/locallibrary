@@ -5,7 +5,10 @@ from locallibrary_frontend.db import models
 def serialize_user(user: models.User) -> schemas.User:
     """Serialize a database user to a pydantic model."""
     return schemas.User(
-        first_name=user.first_name, last_name=user.last_name, email=user.email
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email,
+        id=user.id,
     )
 
 

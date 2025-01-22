@@ -17,12 +17,18 @@ def test_create_user(dbsession: OrmSession):
     email = "xyz@abc.com"
     first_name = "xyz"
     last_name = "abc"
+    user_id = "1234568"
     user = create_user(
-        dbsession, email=email, first_name=first_name, last_name=last_name
+        dbsession,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        user_id=user_id,
     )
     assert user.email == email
     assert user.first_name == first_name
     assert user.last_name == last_name
+    assert user.id == user_id
 
 
 @pytest.mark.num_users(1)
