@@ -27,7 +27,7 @@ def test_get_book(client: TestClient, books: list[Book]):
     )
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert serialize_book(book).model_dump(mode="json") == data
+    assert serialize_book(book).model_dump(by_alias=True, mode="json") == data
 
 
 @pytest.mark.num_books(100)
@@ -38,4 +38,4 @@ def test_tests_list(client: TestClient, books: list[Book]):
     assert "metadata" in data
     assert "books" in data
     metadata = data["metadata"]
-    assert metadata["total_records"] == len(books)
+    assert metadata["totalRecords"] == len(books)

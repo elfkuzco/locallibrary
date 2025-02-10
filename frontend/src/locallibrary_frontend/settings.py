@@ -19,6 +19,8 @@ class Settings:
 
     DATABASE_URL: str = getenv("POSTGRES_URI", mandatory=True)
     DEBUG = bool(getenv("DEBUG", default=False))
+    ACCESS_TOKEN_NAME = "accessToken"
+    REFRESH_TOKEN_NAME = "refreshToken"
     # maximum number of items to return from a request/query
     MAX_PAGE_SIZE = int(getenv("PAGE_SIZE", default=20))
     GRPC_SERVER_PORT = int(getenv("GRPC_SERVER_PORT", default=50051))
@@ -34,3 +36,6 @@ class Settings:
     ).decode()
     JWT_EXPIRY_DURATION = parse_timespan(getenv("JWT_EXPIRY_DURATION", default="3h"))
     JWT_ALGORITHM = getenv("JWT_ALGORITHM", default="ES256")
+    # cors
+    ALLOWED_ORIGINS: list[str] = getenv("ALLOWED_ORIGINS", default="*").split(",")
+    UI_BASE_URI = getenv("UI_BASE_URI", default="")

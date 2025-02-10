@@ -9,18 +9,16 @@ from locallibrary_frontend.db.models import User
 from locallibrary_frontend.settings import Settings
 
 
-def get_user_or_one(session: OrmSession, email: str) -> User | None:
+def get_user_or_none(session: OrmSession, user_id: str) -> User | None:
     """Get a user from the database if it exists."""
-    return session.scalars(select(User).where(User.email == email)).one_or_none()
+    return session.scalars(select(User).where(User.id == user_id)).one_or_none()
 
 
-def get_user(session: OrmSession, email: str) -> User:
+def get_user(session: OrmSession, user_id: str) -> User:
     """Get a user from the database."""
-    user = get_user_or_one(session, email)
+    user = get_user_or_none(session, user_id)
     if user is None:
-        raise RecordDoesNotExistError(
-            f"User with email address {email!r} does not exist."
-        )
+        raise RecordDoesNotExistError(f"User with id {user_id!r} does not exist.")
     return user
 
 
@@ -41,7 +39,7 @@ def create_user(
             set_={"first_name": first_name, "last_name": last_name},
         )
     )
-    return get_user(session, email)
+    return get_user(session, user_id)
 
 
 @dataclass

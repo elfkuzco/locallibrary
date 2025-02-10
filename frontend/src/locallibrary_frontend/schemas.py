@@ -3,10 +3,16 @@ import math
 
 import pydantic
 from pydantic import ConfigDict, Field
+from pydantic.alias_generators import to_camel
 
 
 class BaseModel(pydantic.BaseModel):
-    model_config = ConfigDict(use_enum_values=True, from_attributes=True)
+    model_config = ConfigDict(
+        use_enum_values=True,
+        from_attributes=True,
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
 
 class User(BaseModel):
@@ -63,13 +69,17 @@ class BookList(BaseModel):
 
 
 class RefreshToken(BaseModel):
-    token: str
+    token: str | None
     provider: str
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class AuthTokenStatus(BaseModel):
+    is_valid: bool
 
 
 def calculate_pagination_metadata(

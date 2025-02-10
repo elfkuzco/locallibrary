@@ -35,7 +35,9 @@ def test_create_user(dbsession: OrmSession):
 def test_get_user(dbsession: OrmSession, users: list[User]):
     """Check that we can get a user."""
     existing_user = users[0]
-    db_user = get_user(dbsession, existing_user.email)
+    db_user = get_user(
+        dbsession, existing_user.id  # pyright: ignore[reportArgumentType]
+    )
     assert db_user.email == existing_user.email
     assert db_user.last_name == existing_user.last_name
     assert db_user.first_name == existing_user.first_name

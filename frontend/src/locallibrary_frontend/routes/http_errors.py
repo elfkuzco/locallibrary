@@ -29,3 +29,21 @@ class ServerError(HTTPException):
         super().__init__(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message
         )
+
+
+class InvalidAuthenticationTokenError(HTTPException):
+    def __init__(self, message: Any = None) -> None:
+        if message is None:
+            message = "Invalid authentication token."
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail=message)
+
+
+class UnauthorizedError(HTTPException):
+    def __init__(self, message: Any = None) -> None:
+        if message is None:
+            message = "Invalid authentication credentials"
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=message,
+            headers={"WWW-Authenticate": "Bearer"},
+        )

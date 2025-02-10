@@ -1,37 +1,32 @@
 import datetime
+from typing import Annotated
 
 import aiohttp
 import jwt
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 
+from locallibrary_frontend import logger
 from locallibrary_frontend.db.tokens import create_refresh_token
 from locallibrary_frontend.db.user import create_user as db_create_user
-from locallibrary_frontend.routes.dependencies import DbSession
-from locallibrary_frontend.routes.http_errors import RequestConflictError, ServerError
-from locallibrary_frontend.schemas import RefreshToken, Token
+from locallibrary_frontend.routes import http_errors
+from locallibrary_frontend.routes.dependencies import (
+    DbSession,
+    get_user_id_from_access_token_or_none,
+)
+from locallibrary_frontend.schemas import AuthTokenStatus, RefreshToken, Token
 from locallibrary_frontend.settings import Settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.get("/register")
-async def register(request: Request):
-    redirect_uri = request.url_for("register_google_callback")
-    google_auth_url = (
-        "https://accounts.google.com/o/oauth2/auth"
-        f"?client_id={Settings.GOOGLE_CLIENT_ID}"
-        f"&access_type=offline&redirect_uri={redirect_uri}"
-        "&response_type=code&scope=openid email profile"
-    )
-
-    return RedirectResponse(url=google_auth_url)
-
-
-@router.get("register/google/callback")
+@router.get("/register/google/callback")
 async def register_google_callback(
-    code: str, request: Request, session: DbSession, server_response: Response
+    code: str,
+    request: Request,
+    session: DbSession,
+    next_path: Annotated[str | None, Query(alias="state")] = None,
 ):
     token_request_uri = "https://oauth2.googleapis.com/token"
     data = {
@@ -44,7 +39,11 @@ async def register_google_callback(
 
     async with aiohttp.ClientSession() as client:
         resp = await client.post(token_request_uri, data=data)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except Exception as exc:
+            logger.exception("error while requesting for token from google.")
+            raise http_errors.ServerError() from exc
         oauth_data = await resp.json()
 
         # Use the access token to obtain the user's personal information
@@ -53,7 +52,11 @@ async def register_google_callback(
             "https://www.googleapis.com/oauth2/v1/userinfo",
             headers={"Authorization": f"Bearer {access_token}"},
         )
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except Exception as exc:
+            logger.exception("error while fetching user profile from google.")
+            raise http_errors.ServerError() from exc
         user_data = await resp.json()
 
         # store the user in the database.
@@ -66,20 +69,24 @@ async def register_google_callback(
                 last_name=user_data.get("family_name"),
             )
         except IntegrityError as exc:
-            raise RequestConflictError("A user with the email already exists.") from exc
+            raise http_errors.RequestConflictError(
+                "A user with the email already exists."
+            ) from exc
         except Exception as exc:
-            raise ServerError() from exc
+            logger.exception("error while creating user in datbase")
+            raise http_errors.ServerError() from exc
 
         # save the refresh token for this user
         refresh_token = RefreshToken(
-            token=oauth_data["refresh_token"], provider="google"
+            token=oauth_data.get("refresh_token"), provider="google"
         )
-        create_refresh_token(
-            session,
-            user=db_user,
-            token=refresh_token.token,
-            provider=refresh_token.provider,
-        )
+        if refresh_token.token:
+            create_refresh_token(
+                session,
+                user=db_user,
+                token=refresh_token.token,
+                provider=refresh_token.provider,
+            )
 
         # Create a JWT claims payload containing the user ID as the subject,
         # with an issued time of now and validity window of the expiry duration.
@@ -102,15 +109,40 @@ async def register_google_callback(
             algorithm=Settings.JWT_ALGORITHM,
         )
 
-        # Set the token as a http cookie to be used in requests from
-        # the allowed origins in web browsers.
-        server_response.set_cookie(
-            key="accessToken",
-            value=access_token,
-            path="/",
-            secure=True,
-            httponly=True,
-            samesite="none",
-            expires=now + datetime.timedelta(seconds=Settings.JWT_EXPIRY_DURATION),
-        )
-        return Token(access_token=access_token, token_type="bearer")
+        if Settings.UI_BASE_URI and next_path:
+            logger.info("saving tokens as cookies in browser.")
+            # Set the token as a http cookie to be used in requests from
+            # the allowed origins in web browsers.
+            server_response = RedirectResponse(Settings.UI_BASE_URI + next_path)
+            server_response.set_cookie(
+                key=Settings.ACCESS_TOKEN_NAME,
+                value=access_token,
+                path="/",
+                secure=True,
+                httponly=True,
+                samesite="none",
+                expires=now + datetime.timedelta(seconds=Settings.JWT_EXPIRY_DURATION),
+            )
+            if refresh_token.token:
+                # store the refresh token in the browser as a cookie.
+                server_response.set_cookie(
+                    key=Settings.REFRESH_TOKEN_NAME,
+                    value=refresh_token.token,
+                    path="/",
+                    secure=True,
+                    httponly=True,
+                    samesite="none",
+                    expires=None,
+                )
+            # redirect the next url as pointed by the frontend.
+            # TODO: ensure next is a relative url
+            return server_response
+        else:
+            return Token(access_token=access_token, token_type="Bearer")
+
+
+@router.get("/verify")
+async def verify_authentication_token(
+    user_id: Annotated[str | None, Depends(get_user_id_from_access_token_or_none)]
+):
+    return AuthTokenStatus(is_valid=user_id is not None)
