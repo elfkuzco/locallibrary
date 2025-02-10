@@ -1,9 +1,9 @@
-name: Admin QA
+name: Club QA
 on:
   pull_request:
   push:
     paths:
-      - 'admin/**'
+      - 'club/**'
     branches:
       - main
   workflow_dispatch:
@@ -19,9 +19,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version-file: admin/go.mod
+          go-version-file: club/go.mod
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
-          working-directory: admin
+          working-directory: club
