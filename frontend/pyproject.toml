@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "locallibrary_frontend", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.11,<3.13"
 fastapi = {extras = ["all"], version = "^0.115.0"}
 alembic = "^1.13.2"
 sqlalchemy = "^2.0.35"

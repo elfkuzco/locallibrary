@@ -34,7 +34,7 @@ gen_python_package() {
     [project]
     name = "$package_name"
     description = "Locallibrary Frontend Python gRPC stubs"
-    requires-python = ">=3.11"
+    requires-python = ">=3.11,<3.13"
     version = "${release_version#v}"
     dependencies = [
 	"$(pip3 freeze | grep grpcio==)",
